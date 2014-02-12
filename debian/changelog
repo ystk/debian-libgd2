@@ -1,3 +1,40 @@
+libgd2 (2.0.36~rc1~dfsg-6.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Support multi-arch: (closes: #652496)
+    - Mark libgd2-xpm, libgd2-noxpm, libgd2-xpm-dev and libgd2-noxpm-dev
+      as same.
+    - Adjust d-shlibs and dh-buildinfo build-dependency.
+  * Drop .la files.
+
+ -- Bastian Blank <waldi@debian.org>  Sun, 13 May 2012 09:16:37 +0000
+
+libgd2 (2.0.36~rc1~dfsg-6) unstable; urgency=low
+
+  * Acknowledge NMU.
+    Closes: bug#619537, #621612. Thanks to Luk Claes.
+  * Rewrite copyright file using draft 174 of DEP-5 format.
+  * Add patch 0003 to fix support large images.
+    Closes: bug#595368. Thanks to Teodor Milkov.
+  * Add patch 0004 to fix printf string formatting.
+    Closes: bug#643422. Thanks to Didier Raboud and Thorsten Glaser.
+  * Bump Standards-Version to 3.9.2.
+  * Bump debhelper compatibility level to 7.
+  * Update package relations:
+    + Tighten build-dependency on cdbs: Needed to support debhelper 7.
+    + Relax build-depend unversioned on debhelper and devscripts: Needed
+      versions satisfied even in oldstable.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Sat, 15 Oct 2011 22:23:42 +0200
+
+libgd2 (2.0.36~rc1~dfsg-5.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Remove references to other libraries from dependency_libs field
+    Closes: #619537,#621612.
+
+ -- Luk Claes <luk@debian.org>  Mon, 30 May 2011 07:51:27 +0200
+
 libgd2 (2.0.36~rc1~dfsg-5) unstable; urgency=low
 
   * Workaround CDBS not honoring per-flavor configure flags yet.
