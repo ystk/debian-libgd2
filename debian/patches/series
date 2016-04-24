@@ -3,3 +3,4 @@ gdlib-config-uses-pkgconfig.patch
 fix-compiled-in-version.patch
 subdir-objects.patch
 CVE-2014-2497.patch
+gd2-handle-corrupt-images-better-CVE-2016-3074.patch
