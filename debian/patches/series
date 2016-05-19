@@ -1,0 +1,4 @@
+0001_fix_leak_in_gdImageCopyResized.patch
+0002_CVE-2009-3546.patch
+0005_CVE-2014-2497.patch
+0006_CVE-2014-9709.patch
