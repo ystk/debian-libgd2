@@ -1,3 +1,20 @@
+libgd2 (2.1.0-5+deb8u3) jessie-security; urgency=high
+
+  * [CVE-2015-8877]: Fix gdImageScaleTwoPass memory leak
+  * Upstream patches:
+   + Fixed memory overrun bug in gdImageScaleTwoPass
+   + Fix for segfaults on gdImageScale with most interpolation modes
+
+ -- Ondřej Surý <ondrej@debian.org>  Tue, 24 May 2016 08:44:20 +0200
+
+libgd2 (2.1.0-5+deb8u2) jessie-security; urgency=high
+
+  * [CVE-2015-8874]: Stack consumption vulnerability in GD allows remote
+    attackers to cause a denial of service via a crafted imagefilltoborder
+    call (Closes: #824627)
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 20 May 2016 10:58:03 +0200
+
 libgd2 (2.1.0-5+deb8u1) jessie-security; urgency=high
 
   * Non-maintainer upload by the Security Team.

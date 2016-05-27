@@ -1,0 +1,21 @@
+From 4c70f57fd992772a1c17a9d33f00ce1bf7b06baf Mon Sep 17 00:00:00 2001
+From: Chris Reuter <chris@blit.ca>
+Date: Tue, 27 Aug 2013 21:15:56 -0400
+Subject: [PATCH] Fix #86: gdImageScale segfaults with most interpolation types
+
+Code fails to propagate the interpolation type to an intermediate
+temp image.  This change fixes that.
+---
+ src/gd_interpolation.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- libgd2.orig/src/gd_interpolation.c
++++ libgd2/src/gd_interpolation.c
+@@ -1086,6 +1086,7 @@ gdImagePtr gdImageScaleTwoPass(const gdI
+ 
+ 	dst = gdImageCreateTrueColor(new_width, new_height);
+ 	if (dst != NULL) {
++		gdImageSetInterpolationMethod(tmp_im, src->interpolation_id);
+ 		_gdScaleHoriz(src, src_width, src_height, tmp_im, new_width, src_height);
+ 		_gdScaleVert(tmp_im, new_width, src_height, dst, new_width, new_height);
+ 	}
