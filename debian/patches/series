@@ -8,3 +8,10 @@ gd2-handle-corrupt-images-better-CVE-2016-3074.patch
 CVE-2015-8877.patch
 0001-Fixed-memory-overrun-bug-in-gdImageScaleTwoPass.patch
 0001-Fix-86-gdImageScale-segfaults-with-most-interpolatio.patch
+CVE-2016-5766.patch
+CVE-2016-6128.patch
+CVE-2016-6161.patch
+read_out-of-bands_in_the_parsing_of_TGA_files.patch
+Fix_out-of-bounds_read_in_read_image_tga.patch
+CVE-2016-6214.patch
+CVE-2016-5116.patch

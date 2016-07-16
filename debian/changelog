@@ -1,3 +1,20 @@
+libgd2 (2.1.0-5+deb8u4) jessie-security; urgency=high
+
+  * [CVE-2016-5766]: Fix Integer Overflow in _gd2GetHeader() resulting in
+    heap overflow (Closes: #829014)
+  * [CVE-2016-6128]: Fix invalid color index not handled, can lead to
+    crash (Closes: #829062)
+  * [CVE-2016-6161]: Add upstream patch to fix gif: avoid out-of-bound
+    reads of masks array
+  * [CVE-2016-6132]: Fix out-of-bounds read in the parsing of TGA files
+    (Closes: #829694)
+  * [CVE-2016-6214]: Fix read out-of-bands was found in TGA
+  * [CVE-to-be-assigned]: Fix another out-of-bounds read in read_image_tga
+    (upstream #248)
+  * [CVE-2016-5116]: Fix xbm: avoid stack overflow (read) with large names
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 15 Jul 2016 15:02:40 +0200
+
 libgd2 (2.1.0-5+deb8u3) jessie-security; urgency=high
 
   * [CVE-2015-8877]: Fix gdImageScaleTwoPass memory leak
