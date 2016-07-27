@@ -15,3 +15,4 @@ read_out-of-bands_in_the_parsing_of_TGA_files.patch
 Fix_out-of-bounds_read_in_read_image_tga.patch
 CVE-2016-6214.patch
 CVE-2016-5116.patch
+CVE-2016-6207.patch

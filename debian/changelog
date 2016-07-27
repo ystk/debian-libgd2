@@ -1,3 +1,17 @@
+libgd2 (2.1.0-5+deb8u6) jessie-security; urgency=high
+
+  * [CVE-2016-6207]: Improve fix while (u>=0) with unsigned int will
+    always be true.
+
+ -- Ondřej Surý <ondrej@debian.org>  Tue, 26 Jul 2016 08:49:01 +0200
+
+libgd2 (2.1.0-5+deb8u5) jessie-security; urgency=high
+
+  * [CVE-2016-6207]: Fix out-of-bounds memory write access in
+    _gdContributionsAlloc()
+
+ -- Ondřej Surý <ondrej@debian.org>  Mon, 18 Jul 2016 10:30:26 +0200
+
 libgd2 (2.1.0-5+deb8u4) jessie-security; urgency=high
 
   * [CVE-2016-5766]: Fix Integer Overflow in _gd2GetHeader() resulting in
