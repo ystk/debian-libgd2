@@ -1,12 +1,16 @@
-From 1ccfe21e14c4d18336f9da8515cd17db88c3de61 Mon Sep 17 00:00:00 2001
 From: Pierre Joye <pierre.php@gmail.com>
 Date: Mon, 27 Jun 2016 11:17:39 +0700
-Subject: [PATCH 1/5] fix php 72494, invalid color index not handled, can lead
- to crash
+Subject: fix php 72494, invalid color index not handled, can lead to crash
 
---- libgd2.orig/src/gd_crop.c
-+++ libgd2/src/gd_crop.c
-@@ -136,6 +136,10 @@ BGD_DECLARE(gdImagePtr) gdImageCropThres
+---
+ src/gd_crop.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/gd_crop.c b/src/gd_crop.c
+index 0296633..532b49b 100644
+--- a/src/gd_crop.c
++++ b/src/gd_crop.c
+@@ -136,6 +136,10 @@ BGD_DECLARE(gdImagePtr) gdImageCropThreshold(gdImagePtr im, const unsigned int c
  		return NULL;
  	}
  

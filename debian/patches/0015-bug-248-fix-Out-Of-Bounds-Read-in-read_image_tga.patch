@@ -1,15 +1,16 @@
-From 2580f5df5c4a038018b28682b71923bedd5294d1 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ond=C5=99ej=20Sur=C3=BD?= <ondrej@sury.org>
+From: =?utf-8?q?Ond=C5=99ej_Sur=C3=BD?= <ondrej@sury.org>
 Date: Tue, 12 Jul 2016 14:20:16 +0200
-Subject: [PATCH] bug #248, fix Out-Of-Bounds Read in read_image_tga
+Subject: bug #248, fix Out-Of-Bounds Read in read_image_tga
 
 ---
- src/gd_tga.c | 34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ src/gd_tga.c | 29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
---- libgd2.orig/src/gd_tga.c
-+++ libgd2/src/gd_tga.c
-@@ -200,7 +200,6 @@ int read_image_tga( gdIOCtx *ctx, oTga *
+diff --git a/src/gd_tga.c b/src/gd_tga.c
+index 4cb81f0..408695c 100644
+--- a/src/gd_tga.c
++++ b/src/gd_tga.c
+@@ -200,7 +200,6 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
  	int buffer_caret = 0;
  	int bitmap_caret = 0;
  	int i = 0;
@@ -17,7 +18,7 @@ Subject: [PATCH] bug #248, fix Out-Of-Bounds Read in read_image_tga
  	uint8_t encoded_pixels;
  
  	if(overflow2(tga->width, tga->height)) {
-@@ -292,27 +291,35 @@ int read_image_tga( gdIOCtx *ctx, oTga *
+@@ -292,27 +291,35 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
  		buffer_caret = 0;
  
  		while( bitmap_caret < image_block_size ) {

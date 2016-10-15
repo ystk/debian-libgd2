@@ -1,5 +1,19 @@
---- libgd2.orig/configure.ac
-+++ libgd2/configure.ac
+From: GD team <pkg-gd-devel@lists.alioth.debian.org>
+Date: Wed, 12 Oct 2016 10:12:16 +0200
+Subject: fix-compiled-in-version
+
+---
+ configure.ac |   13 +-
+ src/gd.h     | 1113 ----------------------------------------------------------
+ src/gd.h.in  | 1113 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 1121 insertions(+), 1118 deletions(-)
+ delete mode 100644 src/gd.h
+ create mode 100644 src/gd.h.in
+
+diff --git a/configure.ac b/configure.ac
+index 2f9f744..f1fe0dc 100644
+--- a/configure.ac
++++ b/configure.ac
 @@ -6,12 +6,12 @@ AC_PREREQ(2.54)
  # Some m4 magic to have correct version number everywhere
  m4_define([gd_MAJOR],[2])dnl
@@ -39,7 +53,10 @@
  		tests/Makefile
  		tests/test_config.h
                  config/Makefile
---- libgd2.orig/src/gd.h
+diff --git a/src/gd.h b/src/gd.h
+deleted file mode 100644
+index 7bcbabb..0000000
+--- a/src/gd.h
 +++ /dev/null
 @@ -1,1113 +0,0 @@
 -#ifdef __cplusplus
@@ -1155,8 +1172,11 @@
 -#ifdef __cplusplus
 -}
 -#endif
+diff --git a/src/gd.h.in b/src/gd.h.in
+new file mode 100644
+index 0000000..91bb99c
 --- /dev/null
-+++ libgd2/src/gd.h.in
++++ b/src/gd.h.in
 @@ -0,0 +1,1113 @@
 +#ifdef __cplusplus
 +extern "C" {

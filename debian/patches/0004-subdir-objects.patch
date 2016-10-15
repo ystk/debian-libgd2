@@ -1,5 +1,15 @@
---- libgd2.orig/configure.ac
-+++ libgd2/configure.ac
+From: GD team <pkg-gd-devel@lists.alioth.debian.org>
+Date: Wed, 12 Oct 2016 10:12:17 +0200
+Subject: subdir-objects
+
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index f1fe0dc..ec533b8 100644
+--- a/configure.ac
++++ b/configure.ac
 @@ -47,7 +47,7 @@ AC_SUBST(GDLIB_AGE)
  FEATURES="GD_GIF GD_GIFANIM GD_OPENPOLYGON"
  AC_SUBST(FEATURES)

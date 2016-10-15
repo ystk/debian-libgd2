@@ -1,7 +1,6 @@
-From 4dc1a2d7931017d3625f2d7cff70a17ce58b53b4 Mon Sep 17 00:00:00 2001
 From: Mike Frysinger <vapier@gentoo.org>
 Date: Sat, 14 May 2016 01:38:18 -0400
-Subject: [PATCH] xbm: avoid stack overflow (read) with large names #211
+Subject: xbm: avoid stack overflow (read) with large names #211
 
 We use the name passed in to printf into a local stack buffer which is
 limited to 4000 bytes.  So given a large enough value, lots of stack
@@ -14,9 +13,11 @@ This closes #211.
  src/gd_xbm.c | 34 +++++++++++++++++++++++++++-------
  1 file changed, 27 insertions(+), 7 deletions(-)
 
---- libgd2.orig/src/gd_xbm.c
-+++ libgd2/src/gd_xbm.c
-@@ -147,7 +147,7 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFro
+diff --git a/src/gd_xbm.c b/src/gd_xbm.c
+index 612be47..114f360 100644
+--- a/src/gd_xbm.c
++++ b/src/gd_xbm.c
+@@ -147,7 +147,7 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromXbm(FILE * fd)
  /* {{{ gdCtxPrintf */
  static void gdCtxPrintf(gdIOCtx * out, const char *format, ...)
  {
@@ -25,7 +26,7 @@ This closes #211.
  	int len;
  	va_list args;
  
-@@ -158,6 +158,9 @@ static void gdCtxPrintf(gdIOCtx * out, c
+@@ -158,6 +158,9 @@ static void gdCtxPrintf(gdIOCtx * out, const char *format, ...)
  }
  /* }}} */
  
@@ -35,7 +36,7 @@ This closes #211.
  /* {{{ gdImageXbmCtx */
  BGD_DECLARE(void) gdImageXbmCtx(gdImagePtr image, char* file_name, int fg, gdIOCtx * out)
  {
-@@ -182,9 +185,26 @@ BGD_DECLARE(void) gdImageXbmCtx(gdImageP
+@@ -182,9 +185,26 @@ BGD_DECLARE(void) gdImageXbmCtx(gdImagePtr image, char* file_name, int fg, gdIOC
  		}
  	}
  
@@ -65,7 +66,7 @@ This closes #211.
  
  	free(name);
  
-@@ -201,9 +221,9 @@ BGD_DECLARE(void) gdImageXbmCtx(gdImageP
+@@ -201,9 +221,9 @@ BGD_DECLARE(void) gdImageXbmCtx(gdImagePtr image, char* file_name, int fg, gdIOC
  			if ((b == 128) || (x == sx && y == sy)) {
  				b = 1;
  				if (p) {
@@ -77,7 +78,7 @@ This closes #211.
  						p = 12;
  					}
  				}
-@@ -215,6 +235,6 @@ BGD_DECLARE(void) gdImageXbmCtx(gdImageP
+@@ -215,6 +235,6 @@ BGD_DECLARE(void) gdImageXbmCtx(gdImagePtr image, char* file_name, int fg, gdIOC
  			}
  		}
  	}

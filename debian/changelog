@@ -1,3 +1,11 @@
+libgd2 (2.1.0-5+deb8u7) jessie-security; urgency=high
+
+  * [CVE-2016-7568]: Integer overflow in gdImageWebpCtx
+  * Fix Stack Buffer Overflow in GD dynamicGetbuf
+  * Fix invalid read in gdImageCreateFromTiffPtr()
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 12 Oct 2016 10:27:03 +0200
+
 libgd2 (2.1.0-5+deb8u6) jessie-security; urgency=high
 
   * [CVE-2016-6207]: Improve fix while (u>=0) with unsigned int will

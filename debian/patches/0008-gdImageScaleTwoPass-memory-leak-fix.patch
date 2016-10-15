@@ -1,7 +1,6 @@
-From 4751b606fa38edc456d627140898a7ec679fcc24 Mon Sep 17 00:00:00 2001
 From: Vladimir Mitrovic <vladimir.x.mitrovic@gmail.com>
 Date: Wed, 5 Aug 2015 03:01:06 +0200
-Subject: [PATCH] gdImageScaleTwoPass memory leak fix
+Subject: gdImageScaleTwoPass memory leak fix
 
 Fixing memory leak in gdImageScaleTwoPass, as reported by @cmb69 and
 confirmed by @vapier.  This bug actually bit me in production and I'm
@@ -9,12 +8,14 @@ very thankful that it was reported with an easy fix.
 
 Fixes #173.
 ---
- src/gd_interpolation.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ src/gd_interpolation.c | 25 ++++---------------------
+ 1 file changed, 4 insertions(+), 21 deletions(-)
 
---- libgd2.orig/src/gd_interpolation.c
-+++ libgd2/src/gd_interpolation.c
-@@ -1083,32 +1083,15 @@ gdImagePtr gdImageScaleTwoPass(const gdI
+diff --git a/src/gd_interpolation.c b/src/gd_interpolation.c
+index 88dca85..a35cb4c 100644
+--- a/src/gd_interpolation.c
++++ b/src/gd_interpolation.c
+@@ -1083,32 +1083,15 @@ gdImagePtr gdImageScaleTwoPass(const gdImagePtr src, const unsigned int src_widt
  	if (tmp_im == NULL) {
  		return NULL;
  	}

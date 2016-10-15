@@ -1,7 +1,6 @@
-From 82b80dcb70a7ca8986125ff412bceddafc896842 Mon Sep 17 00:00:00 2001
 From: Mike Frysinger <vapier@gentoo.org>
 Date: Sat, 14 May 2016 02:13:15 -0400
-Subject: [PATCH] gif: avoid out-of-bound reads of masks array #209
+Subject: gif: avoid out-of-bound reads of masks array #209
 
 When given invalid inputs, we might be fed the EOF marker before it is
 actually the EOF.  The gif logic assumes once it sees the EOF marker,
@@ -16,8 +15,10 @@ This fixes #209.
  src/gd_gif_out.c | 12 +++++++++++-
  1 file changed, 11 insertions(+), 1 deletion(-)
 
---- libgd2.orig/src/gd_gif_out.c
-+++ libgd2/src/gd_gif_out.c
+diff --git a/src/gd_gif_out.c b/src/gd_gif_out.c
+index c863172..6a75094 100644
+--- a/src/gd_gif_out.c
++++ b/src/gd_gif_out.c
 @@ -1000,15 +1000,23 @@ nomatch:
   * code in turn.  When the buffer fills up empty it and start over.
   */
@@ -43,7 +44,7 @@ This fixes #209.
  	ctx->cur_accum &= masks[ctx->cur_bits];
  
  	if(ctx->cur_bits > 0) {
-@@ -1050,6 +1058,8 @@ static void output(code_int code, GifCtx
+@@ -1050,6 +1058,8 @@ static void output(code_int code, GifCtx *ctx)
  			ctx->cur_accum >>= 8;
  			ctx->cur_bits -= 8;
  		}

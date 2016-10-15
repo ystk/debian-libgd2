@@ -1,3 +1,13 @@
+From: GD team <pkg-gd-devel@lists.alioth.debian.org>
+Date: Wed, 12 Oct 2016 10:12:16 +0200
+Subject: gdlib-config-uses-pkgconfig
+
+---
+ config/gdlib-config.in | 41 ++++++++++++++++++-----------------------
+ 1 file changed, 18 insertions(+), 23 deletions(-)
+
+diff --git a/config/gdlib-config.in b/config/gdlib-config.in
+index 70af36b..04fedb4 100644
 --- a/config/gdlib-config.in
 +++ b/config/gdlib-config.in
 @@ -2,14 +2,9 @@
