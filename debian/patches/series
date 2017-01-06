@@ -19,3 +19,4 @@
 0019-Patch-for-security-bug-https-bugs.php.net-bug.php-id.patch
 0020-Fix-invalid-read-in-gdImageCreateFromTiffPtr.patch
 0021-CVE-2016-7568-Fix-integer-overflow-in-gdImageWebpCtx.patch
+0022-fix-215-gdImageFillToBorder-stack-overflow-when-inva.patch

@@ -1,3 +1,11 @@
+libgd2 (2.1.0-5+deb8u8) jessie-security; urgency=high
+
+  * Non-maintainer upload by the Security Team.
+  * CVE-2016-9933: gdImageFillToBorder stack-overflow when invalid color is
+    used (Closes: #849038)
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Sun, 01 Jan 2017 17:18:01 +0100
+
 libgd2 (2.1.0-5+deb8u7) jessie-security; urgency=high
 
   * [CVE-2016-7568]: Integer overflow in gdImageWebpCtx

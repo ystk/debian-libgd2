@@ -1,0 +1,36 @@
+From 77f619d48259383628c3ec4654b1ad578e9eb40e Mon Sep 17 00:00:00 2001
+From: Pierre Joye <pierre.php@gmail.com>
+Date: Sat, 4 Jun 2016 23:09:01 +0700
+Subject: [PATCH] fix #215 gdImageFillToBorder stack-overflow when invalid
+ color is used
+
+---
+ src/gd.c                                 | 8 +++++++-
+ tests/gdimagefilltoborder/.gitignore     | 1 +
+ tests/gdimagefilltoborder/CMakeLists.txt | 1 +
+ tests/gdimagefilltoborder/Makemodule.am  | 3 ++-
+ 4 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/src/gd.c b/src/gd.c
+index 0603247..704ce79 100644
+--- a/src/gd.c
++++ b/src/gd.c
+@@ -1928,11 +1928,17 @@ BGD_DECLARE(void) gdImageFillToBorder (gdImagePtr im, int x, int y, int border,
+ 	int i;
+ 	int restoreAlphaBleding;
+ 
+-	if (border < 0) {
++	if (border < 0 || color < 0) {
+ 		/* Refuse to fill to a non-solid border */
+ 		return;
+ 	}
+ 
++	if (!im->trueColor) {
++		if ((color > (im->colorsTotal - 1)) || (border > (im->colorsTotal - 1))) {
++			return;
++		}
++    }
++
+ 	leftLimit = (-1);
+ 
+ 	restoreAlphaBleding = im->alphaBlendingFlag;
