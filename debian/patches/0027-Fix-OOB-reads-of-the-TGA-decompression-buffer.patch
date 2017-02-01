@@ -1,0 +1,201 @@
+From: "Christoph M. Becker" <cmbecker69@gmx.de>
+Date: Tue, 16 Aug 2016 16:26:19 +0200
+Subject: Fix OOB reads of the TGA decompression buffer
+
+It is possible to craft TGA files which will overflow the decompression
+buffer, but not the image's bitmap. Therefore we also have to check for
+potential decompression buffer overflows.
+
+This issue had been reported by Ibrahim El-Sayed to security@libgd.org;
+a modified case exposing an off-by-one error of the first patch had been
+provided by Konrad Beckmann.
+
+This commit is an amendment to commit fb0e0cce, so we use CVE-2016-6906
+as well.
+---
+ src/gd_tga.c | 90 ++++++++++++++++++++++++------------------------------------
+ 1 file changed, 36 insertions(+), 54 deletions(-)
+
+diff --git a/src/gd_tga.c b/src/gd_tga.c
+index 0f15c31..7139340 100644
+--- a/src/gd_tga.c
++++ b/src/gd_tga.c
+@@ -175,7 +175,7 @@ int read_header_tga(gdIOCtx *ctx, oTga *tga)
+ 			return -1;
+ 		}
+ 
+-		gdGetBuf( &( tga->ident ), tga->identsize, ctx );
++		gdGetBuf( tga->ident, tga->identsize, ctx );
+ 	}
+ 
+ 	return 1;
+@@ -191,12 +191,13 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
+ {
+ 	int pixel_block_size = (tga->bits / 8);
+ 	int image_block_size = (tga->width * tga->height) * pixel_block_size;
+-	uint8_t* decompression_buffer = NULL;
++	int* decompression_buffer = NULL;
+ 	unsigned char* conversion_buffer = NULL;
+ 	int buffer_caret = 0;
+ 	int bitmap_caret = 0;
+ 	int i = 0;
+-	uint8_t encoded_pixels;
++	int encoded_pixels;
++	int rle_size;
+ 
+ 	if(overflow2(tga->width, tga->height)) {
+ 		return -1;
+@@ -206,39 +207,30 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
+ 		return -1;
+ 	}
+ 
+-	if(overflow2(image_block_size, sizeof(uint8_t))) {
++	if(overflow2(image_block_size, sizeof(int))) {
+ 		return -1;
+ 	}
+ 
+-	/*!	\brief Allocate memmory for image block
+-	 *  Allocate a chunk of memory for the image block to be passed into.
+-	 */
+-	tga->bitmap = (int *) gdMalloc(image_block_size * sizeof(uint8_t));
+-	if (tga->bitmap == NULL) {
+-		return -1;
+-	}
+-
+-	/*! \todo Add image type support
+-	 *  Add support for this image type.
++	/*! \todo Add more image type support.
+ 	 */
+-	if (tga->imagetype == TGA_TYPE_INDEXED) {
++	if (tga->imagetype != TGA_TYPE_RGB && tga->imagetype != TGA_TYPE_RGB_RLE)
+ 		return -1;
+-	}
+ 
+-	/*! \todo Add image type support
+-	 *  Add support for this image type.
++	/*!	\brief Allocate memmory for image block
++	 *  Allocate a chunk of memory for the image block to be passed into.
+ 	 */
+-	if (tga->imagetype == TGA_TYPE_INDEXED_RLE) {
++	tga->bitmap = (int *) gdMalloc(image_block_size * sizeof(int));
++	if (tga->bitmap == NULL) {
+ 		return -1;
+ 	}
+ 
+-	/*! \brief Read in uncompressed RGB TGA
+-	 *  Chunk load the pixel data from an uncompressed RGB type TGA.
+-	 */
+-	if (tga->imagetype == TGA_TYPE_RGB) {
++	switch (tga->imagetype) {
++	case TGA_TYPE_RGB:
++		/*! \brief Read in uncompressed RGB TGA
++		 *  Chunk load the pixel data from an uncompressed RGB type TGA.
++		 */
+ 		conversion_buffer = (unsigned char *) gdMalloc(image_block_size * sizeof(unsigned char));
+ 		if (conversion_buffer == NULL) {
+-			gdFree(conversion_buffer);
+ 			return -1;
+ 		}
+ 
+@@ -253,25 +245,24 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
+ 		}
+ 
+ 		gdFree( conversion_buffer );
+-	}
++		break;
+ 
+-	/*! \brief Read in RLE compressed RGB TGA
+-	 *  Chunk load the pixel data from an RLE compressed RGB type TGA.
+-	 */
+-	if (tga->imagetype == TGA_TYPE_RGB_RLE) {
+-		decompression_buffer = (uint8_t*) gdMalloc(image_block_size * sizeof(uint8_t));
++	case TGA_TYPE_RGB_RLE:
++		/*! \brief Read in RLE compressed RGB TGA
++		 *  Chunk load the pixel data from an RLE compressed RGB type TGA.
++		 */
++		decompression_buffer = (int *) gdMalloc(image_block_size * sizeof(int));
+ 		if (decompression_buffer == NULL) {
+-			gdFree( decompression_buffer );
+ 			return -1;
+ 		}
+ 		conversion_buffer = (unsigned char *) gdMalloc(image_block_size * sizeof(unsigned char));
+ 		if (conversion_buffer == NULL) {
+ 			gdFree( decompression_buffer );
+-			gdFree( conversion_buffer );
+ 			return -1;
+ 		}
+ 
+-		if (gdGetBuf(conversion_buffer, image_block_size, ctx) != image_block_size) {
++		rle_size = gdGetBuf(conversion_buffer, image_block_size, ctx);
++		if (rle_size <= 0) {
+ 			gdFree(conversion_buffer);
+ 			gdFree(decompression_buffer);
+ 			return -1;
+@@ -279,7 +270,7 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
+ 
+ 		buffer_caret = 0;
+ 
+-		while( buffer_caret < image_block_size ) {
++		while( buffer_caret < rle_size ) {
+ 			decompression_buffer[buffer_caret] = (int)conversion_buffer[buffer_caret];
+ 			buffer_caret++;
+ 		}
+@@ -287,9 +278,15 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
+ 		buffer_caret = 0;
+ 
+ 		while( bitmap_caret < image_block_size ) {
+-			
++
++			if (buffer_caret + pixel_block_size > rle_size) {
++				gdFree( decompression_buffer );
++				gdFree( conversion_buffer );
++				return -1;
++			}
++
+ 			if ((decompression_buffer[buffer_caret] & TGA_RLE_FLAG) == TGA_RLE_FLAG) {
+-				encoded_pixels = ( ( decompression_buffer[ buffer_caret ] & !TGA_RLE_FLAG ) + 1 );
++				encoded_pixels = ( ( decompression_buffer[ buffer_caret ] & ~TGA_RLE_FLAG ) + 1 );
+ 				buffer_caret++;
+ 
+ 				if ((bitmap_caret + (encoded_pixels * pixel_block_size)) > image_block_size
+@@ -300,7 +297,7 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
+ 				}
+ 
+ 				for (i = 0; i < encoded_pixels; i++) {
+-					memcpy(tga->bitmap + bitmap_caret, decompression_buffer + buffer_caret, pixel_block_size);
++					memcpy(tga->bitmap + bitmap_caret, decompression_buffer + buffer_caret, pixel_block_size * sizeof(int));
+ 					bitmap_caret += pixel_block_size;
+ 				}
+ 				buffer_caret += pixel_block_size;
+@@ -315,29 +312,14 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
+ 					return -1;
+ 				}
+ 
+-				memcpy(tga->bitmap + bitmap_caret, decompression_buffer + buffer_caret, encoded_pixels * pixel_block_size);
++				memcpy(tga->bitmap + bitmap_caret, decompression_buffer + buffer_caret, encoded_pixels * pixel_block_size * sizeof(int));
+ 				bitmap_caret += (encoded_pixels * pixel_block_size);
+ 				buffer_caret += (encoded_pixels * pixel_block_size);
+ 			}
+ 		}
+-
+ 		gdFree( decompression_buffer );
+ 		gdFree( conversion_buffer );
+-
+-	}
+-
+-	/*!	\todo Add image type support
+-	 *  Add support for this image type.
+-	 */
+-	if( tga->imagetype == TGA_TYPE_GREYSCALE ) {
+-		return -1;
+-	}
+-
+-	/*!	\todo Add image type support
+-	 *  Add support for this image type.
+-	 */
+-	if( tga->imagetype == TGA_TYPE_GREYSCALE_RLE ) {
+-		return -1;
++		break;
+ 	}
+ 
+ 	return 0;

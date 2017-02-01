@@ -20,3 +20,10 @@
 0020-Fix-invalid-read-in-gdImageCreateFromTiffPtr.patch
 0021-CVE-2016-7568-Fix-integer-overflow-in-gdImageWebpCtx.patch
 0022-fix-215-gdImageFillToBorder-stack-overflow-when-inva.patch
+0023-Fix-OOB-reads-of-the-TGA-decompression-buffer.patch
+0024-Fix-double-free-in-gdImageWebPtr.patch
+0025-Fix-potential-unsigned-underflow.patch
+0026-Fix-DOS-vulnerability-in-gdImageCreateFromGd2Ctx.patch
+0027-Fix-OOB-reads-of-the-TGA-decompression-buffer.patch
+0028-Fix-340-System-frozen.patch
+0029-Fix-354-Signed-Integer-Overflow-gd_io.c.patch

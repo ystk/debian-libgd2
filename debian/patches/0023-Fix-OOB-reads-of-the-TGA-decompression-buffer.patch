@@ -1,0 +1,37 @@
+From: "Christoph M. Becker" <cmbecker69@gmx.de>
+Date: Tue, 16 Aug 2016 16:26:19 +0200
+Subject: Fix OOB reads of the TGA decompression buffer
+
+It is possible to craft TGA files which will overflow the decompression
+buffer, but not the image's bitmap. Therefore we augment the check for the
+bitmap's overflow with a check for the buffer's overflow.
+
+This issue had been reported by Ibrahim El-Sayed to security@libgd.org.
+---
+ src/gd_tga.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/gd_tga.c b/src/gd_tga.c
+index e7f475c..0f15c31 100644
+--- a/src/gd_tga.c
++++ b/src/gd_tga.c
+@@ -292,7 +292,8 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
+ 				encoded_pixels = ( ( decompression_buffer[ buffer_caret ] & !TGA_RLE_FLAG ) + 1 );
+ 				buffer_caret++;
+ 
+-				if ((bitmap_caret + (encoded_pixels * pixel_block_size)) >= image_block_size) {
++				if ((bitmap_caret + (encoded_pixels * pixel_block_size)) > image_block_size
++						|| buffer_caret + pixel_block_size > rle_size) {
+ 					gdFree( decompression_buffer );
+ 					gdFree( conversion_buffer );
+ 					return -1;
+@@ -307,7 +308,8 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
+ 				encoded_pixels = decompression_buffer[ buffer_caret ] + 1;
+ 				buffer_caret++;
+ 
+-				if ((bitmap_caret + (encoded_pixels * pixel_block_size)) >= image_block_size) {
++				if ((bitmap_caret + (encoded_pixels * pixel_block_size)) > image_block_size
++						|| buffer_caret + (encoded_pixels * pixel_block_size) > rle_size) {
+ 					gdFree( decompression_buffer );
+ 					gdFree( conversion_buffer );
+ 					return -1;

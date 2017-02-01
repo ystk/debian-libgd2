@@ -1,0 +1,217 @@
+From: "Christoph M. Becker" <cmbecker69@gmx.de>
+Date: Tue, 16 Aug 2016 17:40:23 +0200
+Subject: Fix double-free in gdImageWebPtr()
+
+The issue is that gdImageWebpCtx() (which is called by gdImageWebpPtr() and
+the other WebP output functions to do the real work) does not return whether
+it succeeded or failed, so this is not checked in gdImageWebpPtr() and the
+function wrongly assumes everything is okay, which is not, in this case,
+because there is a size limitation for WebP, namely that the width and
+height must by less than 16383.
+
+We can't change the signature of gdImageWebpCtx() for API compatibility
+reasons, so we introduce the static helper _gdImageWebpCtx() which returns
+success respective failure, so gdImageWebpPtr() and gdImageWebpPtrEx() can
+check the return value. We leave it solely to libwebp for now to report
+warnings regarding the failing write.
+
+This issue had been reported by Ibrahim El-Sayed to security@libgd.org.
+
+CVE-2016-6912
+---
+ src/gd_webp.c | 143 ++++++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 84 insertions(+), 59 deletions(-)
+
+diff --git a/src/gd_webp.c b/src/gd_webp.c
+index c500b0c..1007385 100644
+--- a/src/gd_webp.c
++++ b/src/gd_webp.c
+@@ -62,6 +62,64 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromWebpPtr (int size, void *data)
+ 	return im;
+ }
+ 
++/* returns 0 on success, 1 on failure */
++static int _gdImageWebpCtx (gdImagePtr im, gdIOCtx * outfile, int quantization)
++{
++	if (im == NULL) {
++		return 1;
++	}
++
++	if (overflow2(gdImageSX(im), 4)) {
++		return 1;
++	}
++
++	if (overflow2(gdImageSX(im) * 4, gdImageSY(im))) {
++		return 1;
++	}
++	
++	int width = im->sx;
++	int height = im->sy;
++
++	int  yuv_width, yuv_height, yuv_nbytes, ret;
++	int vp8_quality;
++	unsigned char *Y = NULL,
++				  *U = NULL,
++				  *V = NULL;
++	unsigned char *filedata = NULL;
++
++	/* Conversion to Y,U,V buffer */
++	yuv_width = (width + 1) >> 1;
++	yuv_height = (height + 1) >> 1;
++	yuv_nbytes = width * height + 2 * yuv_width * yuv_height;
++
++	if ((Y = (unsigned char *)gdCalloc(yuv_nbytes, sizeof(unsigned char))) == NULL) {
++		gd_error("gd-webp error: cannot allocate Y buffer");
++		return 1;
++	}
++	vp8_quality = mapQualityToVP8QP(quantization);
++
++	U = Y + width * height;
++	V = U + yuv_width * yuv_height;
++	gd_RGBAToYUV420(im, Y, U, V);
++
++	/* Encode Y,U,V and write data to file */
++	ret = WebPEncode(Y, U, V, width, height, width, yuv_width, yuv_height, yuv_width,
++					 vp8_quality, &filedata, &yuv_nbytes, NULL);
++	gdFree(Y);
++
++	if (ret != webp_success) {
++		if (filedata) {
++			free(filedata);
++		}
++		gd_error("gd-webp error: WebP Encoder failed");
++		return 1;
++	}
++
++	gdPutBuf (filedata, yuv_nbytes, outfile);
++	free(filedata);
++	return 0;
++}
++
+ #define GD_WEBP_ALLOC_STEP (4*1024)
+ 
+ BGD_DECLARE(gdImagePtr) gdImageCreateFromWebpCtx (gdIOCtx * infile)
+@@ -109,14 +167,14 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromWebpCtx (gdIOCtx * infile)
+ BGD_DECLARE(void) gdImageWebpEx (gdImagePtr im, FILE * outFile, int quantization)
+ {
+ 	gdIOCtx *out = gdNewFileCtx(outFile);
+-	gdImageWebpCtx(im, out, quantization);
++	_gdImageWebpCtx(im, out, quantization);
+ 	out->gd_free(out);
+ }
+ 
+ BGD_DECLARE(void) gdImageWebp (gdImagePtr im, FILE * outFile)
+ {
+ 	gdIOCtx *out = gdNewFileCtx(outFile);
+-  	gdImageWebpCtx(im, out, -1);
++  	_gdImageWebpCtx(im, out, -1);
+ 	out->gd_free(out);
+ }
+ 
+@@ -124,8 +182,11 @@ BGD_DECLARE(void *) gdImageWebpPtr (gdImagePtr im, int *size)
+ {
+ 	void *rv;
+ 	gdIOCtx *out = gdNewDynamicCtx(2048, NULL);
+-	gdImageWebpCtx(im, out, -1);
+-	rv = gdDPExtractData(out, size);
++	if (_gdImageWebpCtx(im, out, -1)) {
++		rv = NULL;
++	} else {
++		rv = gdDPExtractData(out, size);
++	}
+ 	out->gd_free(out);
+ 
+ 	return rv;
+@@ -135,8 +196,11 @@ BGD_DECLARE(void *) gdImageWebpPtrEx (gdImagePtr im, int *size, int quantization
+ {
+ 	void *rv;
+ 	gdIOCtx *out = gdNewDynamicCtx(2048, NULL);
+-	gdImageWebpCtx(im, out, quantization);
+-	rv = gdDPExtractData(out, size);
++	if (_gdImageWebpCtx(im, out, quantization)) {
++		rv = NULL;
++	} else {
++		rv = gdDPExtractData(out, size);
++	}
+ 	out->gd_free(out);
+ 	return rv;
+ }
+@@ -160,64 +224,25 @@ int mapQualityToVP8QP(int quality) {
+ 	return (int)(vp8qp + 0.5);
+ }
+ 
+-/* This routine is based in part on code from Dale Lutz (Safe Software Inc.)
+- *  and in part on demo code from Chapter 15 of "PNG: The Definitive Guide"
+- *  (http://www.cdrom.com/pub/png/pngbook.html).
+- */
+-BGD_DECLARE(void) gdImageWebpCtx (gdImagePtr im, gdIOCtx * outfile, int quantization)
+-{
+-	if (im == NULL) {
+-		return;
+-	}
+-
+-	if (overflow2(gdImageSX(im), 4)) {
+-		return;
+-	}
+-
+-	if (overflow2(gdImageSX(im) * 4, gdImageSY(im))) {
+-		return;
+-	}
+-	
+-	int width = im->sx;
+-	int height = im->sy;
+-
+-	int  yuv_width, yuv_height, yuv_nbytes, ret;
+-	int vp8_quality;
+-	unsigned char *Y = NULL,
+-				  *U = NULL,
+-				  *V = NULL;
+-	unsigned char *filedata = NULL;
+-
+-	/* Conversion to Y,U,V buffer */
+-	yuv_width = (width + 1) >> 1;
+-	yuv_height = (height + 1) >> 1;
+-	yuv_nbytes = width * height + 2 * yuv_width * yuv_height;
++/*
++  Function: gdImageWebpCtx
+ 
+-	if ((Y = (unsigned char *)gdCalloc(yuv_nbytes, sizeof(unsigned char))) == NULL) {
+-		gd_error("gd-webp error: cannot allocate Y buffer");
+-		return;
+-	}
+-	vp8_quality = mapQualityToVP8QP(quantization);
++    Write the image as WebP data via a <gdIOCtx>. See <gdImageWebpEx>
++    for more details.
+ 
+-	U = Y + width * height;
+-	V = U + yuv_width * yuv_height;
+-	gd_RGBAToYUV420(im, Y, U, V);
++  Parameters:
+ 
+-	/* Encode Y,U,V and write data to file */
+-	ret = WebPEncode(Y, U, V, width, height, width, yuv_width, yuv_height, yuv_width,
+-					 vp8_quality, &filedata, &yuv_nbytes, NULL);
+-	gdFree(Y);
++    im      - The image to write.
++    outfile - The output sink.
++    quality - Image quality.
+ 
+-	if (ret != webp_success) {
+-		if (filedata) {
+-			free(filedata);
+-		}
+-		gd_error("gd-webp error: WebP Encoder failed");
+-		return;
+-	}
++  Returns:
+ 
+-	gdPutBuf (filedata, yuv_nbytes, outfile);
+-	free(filedata);
++    Nothing.
++*/
++BGD_DECLARE(void) gdImageWebpCtx (gdImagePtr im, gdIOCtx * outfile, int quality)
++{
++	_gdImageWebpCtx(im, outfile, quality);
+ }
+ 
+ #endif /* HAVE_LIBVPX */

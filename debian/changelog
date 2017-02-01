@@ -1,3 +1,15 @@
+libgd2 (2.1.0-5+deb8u9) jessie-security; urgency=high
+
+  * [CVE-2016-6906]: Fix OOB reads of the TGA decompression buffer
+  * [CVE-2016-6912]: Fix double-free in gdImageWebPtr()
+  * [CVE-2016-10166]: Fix potential unsigned underflow
+  * [CVE-2016-10167]: Fix DOS vulnerability in gdImageCreateFromGd2Ctx()
+  * [CVE-2016-6906]: Fix OOB reads of the TGA decompression buffer
+  * [CVE-2016-9317]: Check for oversized images
+  * [CVE-2016-10168]: Fix signed integer Overflow gd_io.c
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 18 Jan 2017 13:35:12 +0100
+
 libgd2 (2.1.0-5+deb8u8) jessie-security; urgency=high
 
   * Non-maintainer upload by the Security Team.

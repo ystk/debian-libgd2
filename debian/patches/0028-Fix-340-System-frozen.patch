@@ -1,0 +1,31 @@
+From: "Christoph M. Becker" <cmbecker69@gmx.de>
+Date: Sat, 12 Nov 2016 15:00:31 +0100
+Subject: Fix #340: System frozen
+
+gdImageCreate() doesn't check for oversized images and as such is prone
+to DoS vulnerabilities. We fix that by applying the same overflow check
+that is already in place for gdImageCreateTrueColor().
+
+CVE-2016-9317
+
+Conflicts:
+	src/gd.c
+---
+ src/gd.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/gd.c b/src/gd.c
+index b369743..909b973 100644
+--- a/src/gd.c
++++ b/src/gd.c
+@@ -134,6 +134,10 @@ BGD_DECLARE(gdImagePtr) gdImageCreate (int sx, int sy)
+ 	int i;
+ 	gdImagePtr im;
+ 
++	if (overflow2(sx, sy)) {
++		return NULL;
++	}
++
+ 	if (overflow2(sizeof (unsigned char *), sy)) {
+ 		return NULL;
+ 	}
