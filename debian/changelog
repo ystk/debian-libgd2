@@ -1,3 +1,10 @@
+libgd2 (2.1.0-5+deb8u11) jessie-security; urgency=high
+
+  * Non-maintainer upload by the Security Team.
+  * CVE-2017-6362: Double-free in gdImagePngPtr()
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Thu, 31 Aug 2017 14:31:50 +0200
+
 libgd2 (2.1.0-5+deb8u10) jessie-security; urgency=high
 
   * Non-maintainer upload by the Security Team.

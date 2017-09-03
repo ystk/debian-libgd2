@@ -28,3 +28,4 @@
 0028-Fix-340-System-frozen.patch
 0029-Fix-354-Signed-Integer-Overflow-gd_io.c.patch
 0030-Close-339-Fix-unitialized-memory-read-vulnerability-.patch
+0031-Fix-381-libgd-double-free-vulnerability.patch
