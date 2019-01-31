@@ -1,3 +1,20 @@
+libgd2 (2.1.0-5+deb8u12) jessie-security; urgency=high
+
+  * Non-maintainer upload by the LTS Team. 
+  * CVE-2019-6977
+    Fix for potential double free in gdImage*Ptr() 
+  * CVE-2019-6978
+    Fix for a heap-based buffer overflow, exploitable with
+    crafted image data.
+  * CVE-2018-1000222
+    Fix for a double free vulnerability by a crafted image,
+    that can result in remote code execution. 
+  * CVE-2018-5711
+    Fix for a integer signedness error that leads to an
+    infinite loop via a crafted GIF file.
+
+ -- Thorsten Alteholz <debian@alteholz.de>  Wed, 30 Jan 2019 19:03:02 +0100
+
 libgd2 (2.1.0-5+deb8u11) jessie-security; urgency=high
 
   * Non-maintainer upload by the Security Team.
