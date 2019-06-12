@@ -1,3 +1,11 @@
+libgd2 (2.1.0-5+deb8u13) jessie-security; urgency=high
+
+  * Non-maintainer upload by the LTS Security Team.
+  * Fix CVE-2019-11038: Uninitialized read in gdImageCreateFromXbm
+    (Closes: #929821)
+
+ -- Jonas Meurer <jonas@freesources.org>  Tue, 11 Jun 2019 17:24:57 +0200
+
 libgd2 (2.1.0-5+deb8u12) jessie-security; urgency=high
 
   * Non-maintainer upload by the LTS Team. 

@@ -29,8 +29,8 @@
 0029-Fix-354-Signed-Integer-Overflow-gd_io.c.patch
 0030-Close-339-Fix-unitialized-memory-read-vulnerability-.patch
 0031-Fix-381-libgd-double-free-vulnerability.patch
-
 0032-CVE-2019-6978.patch
 0033-CVE-2019-6977.patch
 0034-CVE-2018-1000222.patch
 0035-CVE-2018-5711.patch
+0036-Fix-501-Uninitialized-read-in-gdImageCreateFromXbm-C.patch
