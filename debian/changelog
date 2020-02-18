@@ -1,3 +1,12 @@
+libgd2 (2.1.0-5+deb8u14) jessie-security; urgency=high
+
+  * Non-maintainer upload by the LTS Team.
+  * CVE-2018-14553: Fix for NULL pointer dereference allowing attackers to
+    crash an application via a specific function call sequence
+    (Closes: #951287)
+
+ -- Roberto C. Sanchez <roberto@debian.org>  Fri, 14 Feb 2020 20:09:51 -0500
+
 libgd2 (2.1.0-5+deb8u13) jessie-security; urgency=high
 
   * Non-maintainer upload by the LTS Security Team.

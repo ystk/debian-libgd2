@@ -34,3 +34,4 @@
 0034-CVE-2018-1000222.patch
 0035-CVE-2018-5711.patch
 0036-Fix-501-Uninitialized-read-in-gdImageCreateFromXbm-C.patch
+0037-CVE-2018-14553-Fix-potential-NULL-pointer-dereference-in-gdImageClone.patch
